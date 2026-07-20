@@ -4,7 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 import path from 'path';
 
 export default defineConfig({
-  base: '/calc-app/',
+  base: '/guano/',
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -22,12 +22,12 @@ export default defineConfig({
         theme_color: '#1976d2',
         background_color: '#ffffff',
         display: 'standalone',
-        start_url: '/calc-app/',
-        scope: '/calc-app/',
+        start_url: '/guano/',
+        scope: '/guano/',
         icons: [
-          { src: '/calc-app/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: '/calc-app/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
-          { src: '/calc-app/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+          { src: '/guano/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+          { src: '/guano/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+          { src: '/guano/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
         ],
       },
       workbox: {
