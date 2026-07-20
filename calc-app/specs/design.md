@@ -15,7 +15,7 @@ Build only what is needed today.
 - React
 - Vite
 - TypeScript
-- React Router
+- React Router (`react-router-dom` with `HashRouter`)
 - Material UI (MUI)
 
 ---
@@ -28,6 +28,12 @@ The application must:
 - Work offline after the first visit (PWA).
 
 No backend should be required.
+
+The hosted URL is `https://<owner>.github.io/guano/` (project page at the repository root). The Vite `base` configuration, the PWA manifest's `start_url` and `scope`, and any absolute asset paths in `index.html` must all use this same `/guano/` prefix so that assets resolve correctly at runtime.
+
+Deployment is automated via `.github/workflows/deploy.yml`, which builds the static site and publishes it to GitHub Pages on every push to `main`.
+
+> Do not switch the hosting target, rename the repository, or move the app to a different subpath without updating `base`, the PWA manifest, and `index.html` together.
 
 ---
 
@@ -56,6 +62,8 @@ Do not introduce global state unless there is a demonstrated need.
 Each calculator has its own route.
 
 The navigation drawer should automatically reflect the available calculators.
+
+Use `HashRouter` from `react-router-dom` (not `BrowserRouter`). Routes are encoded in the URL hash (e.g. `https://<owner>.github.io/guano/#/calculadora-de-abismo`) so that deep links and page reloads work correctly on the static host. Do not pass a `basename` prop to `HashRouter`; the path prefix is handled by the static host URL, not by the router.
 
 ---
 

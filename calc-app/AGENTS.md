@@ -11,6 +11,15 @@ These documents are the source of truth.
 
 ---
 
+## Deployment Context
+
+- Hosted at `https://<owner>.github.io/guano/` (GitHub Pages project site at the repository root).
+- `calc-app/vite.config.ts` `base` is set to `/guano/`. The PWA `start_url`, `scope`, and absolute icon paths must match.
+- Routing uses `HashRouter`. Do not switch to `BrowserRouter`; the static host does not rewrite deep links.
+- Deployment is automated via `.github/workflows/deploy.yml` (GitHub Actions). Tests are run locally with `npm test` only; CI currently does not run them.
+
+---
+
 ## Rules
 
 - Do not modify the specification files unless explicitly instructed.
