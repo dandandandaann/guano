@@ -1,4 +1,4 @@
 // Abismo Calculator barrel export
 
 export { AbismoCalculator } from './AbismoCalculator';
-export { calculatePitDepth, GRAVITY } from './logic';
+export { calculatePitDepth, GRAVITY, SPEED_OF_SOUND } from './logic';

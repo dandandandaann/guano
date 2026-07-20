@@ -68,8 +68,8 @@ export function AbismoCalculator() {
           Calculadora de Abismo
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Estima a profundidade de um abismo a partir do tempo de queda de uma
-          pedra.
+          Estima a profundidade de um abismo a partir do tempo entre soltar a
+          pedra e ouvir o impacto.
         </Typography>
       </Box>
 
@@ -82,7 +82,7 @@ export function AbismoCalculator() {
         <Stack spacing={3}>
           <TextField
             id="time-input"
-            label="Tempo para a pedra atingir o fundo (s)"
+            label="Tempo até ouvir a pedra bater no fundo (s)"
             type="number"
             value={timeInput}
             onChange={handleTimeChange}

@@ -71,7 +71,7 @@ Estimate the total depth of a pit based on the elapsed time between releasing a 
 
 Label:
 
-Tempo para a pedra atingir o fundo (segundos)
+Tempo até ouvir a pedra bater no fundo (segundos)
 
 Requirements:
 
@@ -113,11 +113,27 @@ Assumptions:
 
 - Initial velocity = 0
 - Gravity = 9.80665 m/s²
+- Speed of sound in air = 343 m/s (constant; temperature, humidity and other atmospheric effects are ignored)
 - Ignore air resistance
 
 The release height is measured from the ground outside the pit to the point where the rock is released.
 
-The displayed result is the estimated total depth of the pit.
+The `timeSeconds` input is the total elapsed time from releasing the rock to **hearing** it reach the bottom (i.e. it includes both the fall time of the rock and the time the sound takes to travel back up).
+
+The depth of the pit is computed as the depth **below ground level**, using the following closed-form expression (derived from inverting `t = sqrt(2d/g) + d/c` for `d`):
+
+```
+depth = (c² / (2 * g)) * (sqrt(1 + (2 * g * t) / c) - 1)² - h
+```
+
+Where:
+
+- `c` = speed of sound (343 m/s)
+- `g` = gravity (9.80665 m/s²)
+- `t` = elapsed time from release to hearing the impact (s)
+- `h` = release height (m)
+
+The displayed result is the estimated depth of the pit below ground level.
 
 ---
 

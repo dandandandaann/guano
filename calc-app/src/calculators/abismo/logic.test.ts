@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculatePitDepth, GRAVITY } from './logic';
+import { calculatePitDepth, GRAVITY, SPEED_OF_SOUND } from './logic';
 
 describe('Abismo Calculator - Logic', () => {
   describe('GRAVITY constant', () => {
@@ -8,64 +8,83 @@ describe('Abismo Calculator - Logic', () => {
     });
   });
 
-  describe('calculatePitDepth', () => {
-    describe('valid calculations', () => {
-      it('should return release height only when time is 0 (no fall time)', () => {
-        // When time = 0, there is no additional depth from falling
-        // So the result should just be the release height
-        const result = calculatePitDepth(0, 1.5);
-        expect(result).toBe(1.5);
-      });
-
-      it('should calculate correct depth for 1 second fall with 1.5m release height', () => {
-        // depth = releaseHeight + 0.5 * g * t²
-        // depth = 1.5 + 0.5 * 9.80665 * 1²
-        // depth = 1.5 + 4.903325
-        // depth = 6.403325
-        const result = calculatePitDepth(1, 1.5);
-        expect(result).toBeCloseTo(6.403325, 6);
-      });
-
-      it('should calculate correct depth for 2 seconds fall with 1.5m release height', () => {
-        // depth = releaseHeight + 0.5 * g * t²
-        // depth = 1.5 + 0.5 * 9.80665 * 2²
-        // depth = 1.5 + 0.5 * 9.80665 * 4
-        // depth = 1.5 + 19.6133
-        // depth = 21.1133
-        const result = calculatePitDepth(2, 1.5);
-        expect(result).toBeCloseTo(21.1133, 4);
-      });
-
-      it('should calculate correct depth when dropping from ground level (0m release)', () => {
-        // depth = 0 + 0.5 * g * t²
-        // depth = 0.5 * 9.80665 * 2²
-        // depth = 0.5 * 9.80665 * 4
-        // depth = 19.6133
-        const result = calculatePitDepth(2, 0);
-        expect(result).toBeCloseTo(19.6133, 4);
-      });
+  describe('SPEED_OF_SOUND constant', () => {
+    it('should equal 343 m/s', () => {
+      expect(SPEED_OF_SOUND).toBe(343);
     });
+  });
 
-    describe('edge cases', () => {
-      it('should return 0 when both time and release height are 0', () => {
+  describe('calculatePitDepth', () => {
+    // Reference values computed from:
+    //   depth = (c² / (2*g)) * (sqrt(1 + (2*g*t)/c) - 1)² - h
+    // with c = 343, g = 9.80665
+
+    describe('valid calculations', () => {
+      it('should return 0 when time and release height are both 0', () => {
+        // depth = (343² / (2*9.80665)) * (sqrt(1) - 1)² - 0 = 0
         const result = calculatePitDepth(0, 0);
         expect(result).toBe(0);
       });
 
+      it('should return the negated release height when time is 0', () => {
+        // With t = 0 the formula reduces to -h, indicating that with no
+        // elapsed time the only "depth" implied by the model is the
+        // (negative of the) release height offset.
+        const result = calculatePitDepth(0, 1.5);
+        expect(result).toBeCloseTo(-1.5, 10);
+      });
+
+      it('should calculate correct depth for 1 second elapsed with 1.5m release height', () => {
+        // depth = (343² / (2*9.80665)) * (sqrt(1 + (2*9.80665*1)/343) - 1)² - 1.5
+        //      ≈ 5998.858... * (sqrt(1.057186...) - 1)² - 1.5
+        //      ≈ 3.2679528088829644
+        const result = calculatePitDepth(1, 1.5);
+        expect(result).toBeCloseTo(3.2679528088829644, 10);
+      });
+
+      it('should calculate correct depth for 2 seconds elapsed with 1.5m release height', () => {
+        // depth = (343² / (2*9.80665)) * (sqrt(1 + (2*9.80665*2)/343) - 1)² - 1.5
+        //      ≈ 17.066030234275228
+        const result = calculatePitDepth(2, 1.5);
+        expect(result).toBeCloseTo(17.066030234275228, 10);
+      });
+
+      it('should calculate correct depth when dropping from ground level (0m release)', () => {
+        // depth = (343² / (2*9.80665)) * (sqrt(1 + (2*9.80665*2)/343) - 1)² - 0
+        //      ≈ 18.566030234275228
+        const result = calculatePitDepth(2, 0);
+        expect(result).toBeCloseTo(18.566030234275228, 10);
+      });
+    });
+
+    describe('edge cases', () => {
       it('should handle very small time values', () => {
+        // depth = (343² / (2*9.80665)) * (sqrt(1 + (2*9.80665*0.001)/343) - 1)² - 1.5
+        //      ≈ -1.499995096815185
         const result = calculatePitDepth(0.001, 1.5);
-        // depth = 1.5 + 0.5 * 9.80665 * 0.000001
-        // depth = 1.5 + 0.000004903325
-        // depth ≈ 1.5000049
-        expect(result).toBeCloseTo(1.500004903325, 10);
+        expect(result).toBeCloseTo(-1.499995096815185, 10);
       });
 
       it('should handle large time values', () => {
+        // depth = (343² / (2*9.80665)) * (sqrt(1 + (2*9.80665*10)/343) - 1)² - 1.5
+        //      ≈ 384.6449605157748
         const result = calculatePitDepth(10, 1.5);
-        // depth = 1.5 + 0.5 * 9.80665 * 100
-        // depth = 1.5 + 490.3325
-        // depth = 491.8325
-        expect(result).toBeCloseTo(491.8325, 4);
+        expect(result).toBeCloseTo(384.6449605157748, 10);
+      });
+
+      it('should decrease when release height increases for the same time', () => {
+        const shallow = calculatePitDepth(2, 0);
+        const deeper = calculatePitDepth(2, 1.5);
+        expect(deeper).toBeLessThan(shallow);
+        expect(shallow - deeper).toBeCloseTo(1.5, 10);
+      });
+
+      it('should increase monotonically with time for a fixed release height', () => {
+        const a = calculatePitDepth(1, 1.5);
+        const b = calculatePitDepth(2, 1.5);
+        const c = calculatePitDepth(5, 1.5);
+        expect(b).toBeGreaterThan(a);
+        expect(c).toBeGreaterThan(b);
       });
     });
 
